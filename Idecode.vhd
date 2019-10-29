@@ -12,9 +12,12 @@ ENTITY Idecode IS
 				RegWrite 		: IN 	STD_LOGIC;
 				RegDst 			: IN 	STD_LOGIC;
 				MemToReg			: IN	STD_LOGIC;
+				PCToReg			: IN	STD_LOGIC;
 				Read_data		: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 				Write_data_out	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+				Jump_immed		: OUT STD_LOGIC_VECTOR( 25 DOWNTO 0 );
 				Sign_extend 	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+				PCAddr			: IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
 				clock,reset		: IN 	STD_LOGIC );
 END Idecode;
 
@@ -26,9 +29,11 @@ ARCHITECTURE behavior OF Idecode IS
 	--
 	SIGNAL register_array:registe_file;
 	
-	SIGNAL Rs_ID,Rt_ID,Rd_ID,write_reg_ID : STD_LOGIC_VECTOR(4 DOWNTO 0);
+	SIGNAL Rs_ID,Rt_ID,Rd_ID,write_reg_ID, write_reg_sel : STD_LOGIC_VECTOR(4 DOWNTO 0);
 	
 	SIGNAL Immediate_value : STD_LOGIC_VECTOR(15 DOWNTO 0);
+	
+	SIGNAL write_sel : STD_LOGIC_VECTOR(31 DOWNTO 0);
 	
 	SIGNAL write_data : STD_LOGIC_VECTOR(31 DOWNTO 0);
 
@@ -53,20 +58,26 @@ BEGIN
 	read_data_2 <= register_array(CONV_INTEGER(Rt_ID));
 	
 	-- Crie um multiplexador que seleciona o registrador de escrita de acordo com o sinal RegDst
-   write_reg_ID <= Rd_ID WHEN RegDst = '1' ELSE Rt_ID;
+   write_reg_sel <= Rd_ID WHEN RegDst = '1' ELSE Rt_ID;
 	
-	-- Ligue no sinal abaixo os bits relativos ao valor a ser escrito no registrador destino.
-	--write_data <= ALU_result(31 DOWNTO 0);
+	write_reg_ID <= write_reg_sel WHEN (PCToReg = '0') ELSE
+						 "11111";
+	
 	
 	--Multiplexador na saida do data memory para selecionar escrita/leitura da memoria no registro
-	--write_data <= Read_data WHEN MemToReg = '1' ELSE ALU_result;
-	write_data <= ALU_result( 31 DOWNTO 0 ) WHEN ( MemToReg = '0' ) ELSE Read_data;
+	write_sel <= ALU_result( 31 DOWNTO 0 ) WHEN ( MemToReg = '0' ) ELSE Read_data;
+	
+	write_data <= write_sel WHEN (PCToReg = '0') ELSE 
+					  X"000000" & (PCAddr + 4); 
 	
 	-- Estenda o sinal Immediate_value de instrucoes do tipo I de 16-bits to 32-bits
 	-- Faca isto independente do tipo de instrucao, mas use apenas quando
 	-- for instrucao do tipo I.
    Sign_extend <= X"0000"&Immediate_value WHEN Immediate_value(15) = '0'
 	ELSE X"FFFF"&Immediate_value;
+	
+	--Valor do Imediato para instrucao jp
+	Jump_immed <= Instruction(25 DOWNTO 0);
 
 PROCESS
 	BEGIN

@@ -14,6 +14,8 @@ ENTITY  Execute IS
 			ALUSrc			: IN	STD_LOGIC;
 			ALU_Result 		: OUT	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			ADDResult 		: OUT	STD_LOGIC_VECTOR( 9 DOWNTO 0 );
+			Jump_immed		: IN STD_LOGIC_VECTOR( 25 DOWNTO 0 );
+			JumpAddr			: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
 			Zero				: OUT	STD_LOGIC);
 END Execute;
 
@@ -42,6 +44,9 @@ BEGIN
 	
 	--Calcula o endeço de salto
 	ADDResult <= ((Sign_extend(6 DOWNTO 0)&"00") + PC_PLUS_4);
+	
+	--Calcula o Jump absoluto
+	JumpAddr <= ( PC_PLUS_4(9 DOWNTO 8) & Jump_immed(5 DOWNTO 0) & "00" );
 	
 	--Computa o valor do zero
 	Zero <= '1' WHEN ALU_mux = x"00000000" ELSE '0';

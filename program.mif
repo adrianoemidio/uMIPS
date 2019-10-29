@@ -1,35 +1,31 @@
--- MIPS Instruction Memory Initialization File
-Depth = 256;
-Width = 32;
-Address_radix = HEX;
-Data_radix = HEX;
-Content
-Begin
-00: 8C010000;	-- lw $1, 0
-01: 8C020001;	-- lw $2, 1
-02: 00221820;	-- add $3, $1, $2
-03: 00222022;	-- sub $4, $1, $2
-04: 8C050002;	-- lw $5, 2
-05: 8C060003;	-- lw $6, 3
-06: 00A63824;	-- and $7, $5, $6
-07: 00A64025;	-- or $8, $5,$6
-08: 0022482A;	-- slt $9,$1,$2
-09: 0041502A;	-- slt $10,$2,$1
-0A: AC030004; 	-- sw $3, 4
-0B: AC040005;	-- sw $4, 5
-0C: AC070006;	-- sw $7, 6
-0D: AC080007;	-- sw $8, 7
-0E: AC090008;	-- sw $9, 8
-0F: AC0A0009;	-- sw $10, 9
-10: 10210008;	--beq $1, $1, 32
-[11..18]: 00000000;
-19: 8C010004;	-- lw $1, 4
-1A: 8C020005;	-- lw $2, 5
-1B: 8C030006;	-- lw $3, 6
-1C: 8C040007;	-- lw $4, 7
-1D: 8C050008;	-- lw $5, 8
-1E: 8C060009;	-- LW $6, 9
-1F: 1022FFFF;	-- beq $1,$2, -4
-20: 1021FFF8;	-- beq $1, $1, -32
-[21..FF]: 00000000;
-End;
+-- Copyright (C) 1991-2013 Altera Corporation
+-- Your use of Altera Corporation's design tools, logic functions 
+-- and other software and tools, and its AMPP partner logic 
+-- functions, and any output files from any of the foregoing 
+-- (including device programming or simulation files), and any 
+-- associated documentation or information are expressly subject 
+-- to the terms and conditions of the Altera Program License 
+-- Subscription Agreement, Altera MegaCore Function License 
+-- Agreement, or other applicable license agreement, including, 
+-- without limitation, that your use is for the sole purpose of 
+-- programming logic devices manufactured by Altera and sold by 
+-- Altera or its authorized distributors.  Please refer to the 
+-- applicable agreement for further details.
+
+-- Quartus II generated Memory Initialization File (.mif)
+
+WIDTH=32;
+DEPTH=256;
+
+ADDRESS_RADIX=HEX;
+DATA_RADIX=HEX;
+
+CONTENT BEGIN
+	000  :   08000008;
+	001  :   08000000;
+	[002..007]  :   00000000;
+	008  :   0C000020;
+	[009..01F]  :   00000000;
+	020  :   0C000001;
+	[021..0FF]  :   00000000;
+END;

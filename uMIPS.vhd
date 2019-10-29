@@ -22,27 +22,31 @@ COMPONENT LCD_Display
 END COMPONENT;
 
 COMPONENT Ifetch
-	PORT(rst   		: IN STD_LOGIC;
-		clk	: IN STD_LOGIC;
-		ADDResult	: IN	STD_LOGIC_VECTOR(9 DOWNTO 0);
+	PORT( rst,clk	: IN STD_LOGIC;
+		ADDResult	: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		JumpAddr		: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
 		PCAddr		: OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		PC_PLUS_4	: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
 		dataInstr	: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		Jump			: IN 	STD_LOGIC;
 		Branch, Zero: IN STD_LOGIC);
 END COMPONENT;
 
 COMPONENT Idecode
-	  PORT(	read_data_1	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-				read_data_2	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-				Instruction : IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-				ALU_result	: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-				RegWrite 	: IN 	STD_LOGIC;
-				RegDst 		: IN 	STD_LOGIC;
-				MemToReg		: IN	STD_LOGIC;
-				Read_data	: IN STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+	  PORT(	read_data_1		: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+				read_data_2		: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+				Instruction 	: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+				ALU_result		: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+				RegWrite 		: IN 	STD_LOGIC;
+				RegDst 			: IN 	STD_LOGIC;
+				MemToReg			: IN	STD_LOGIC;
+				PCToReg			: IN	STD_LOGIC;
+				Read_data		: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 				Write_data_out	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-				Sign_extend : OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-				clock,reset	: IN 	STD_LOGIC );
+				Jump_immed		: OUT STD_LOGIC_VECTOR( 25 DOWNTO 0 );
+				PCAddr			: IN  STD_LOGIC_VECTOR( 7 DOWNTO 0);
+				Sign_extend 	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
+				clock,reset		: IN 	STD_LOGIC );
 
 END COMPONENT;
 
@@ -51,9 +55,11 @@ COMPONENT control
 			ALUop 		: OUT 	STD_LOGIC_VECTOR( 1 DOWNTO 0 );
 			RegDst 		: OUT 	STD_LOGIC;
 			MemToReg		: OUT		STD_LOGIC;
+			PCToReg		: OUT 	STD_LOGIC;
 			MenWrite		: OUT 	STD_LOGIC;
 			ALUSrc		: OUT 	STD_LOGIC;
 			RegWrite 	: OUT 	STD_LOGIC;
+			Jump			: OUT		STD_LOGIC;
 			Branch 		: OUT		STD_LOGIC);
 END COMPONENT;
 
@@ -67,6 +73,8 @@ COMPONENT Execute
 			ALUSrc			: IN	STD_LOGIC;
 			ALU_Result 		: OUT	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 			ADDResult 		: OUT	STD_LOGIC_VECTOR( 9 DOWNTO 0 );
+			Jump_immed		: IN STD_LOGIC_VECTOR( 25 DOWNTO 0 );
+			JumpAddr			: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
 			Zero				: OUT	STD_LOGIC);
 
 END COMPONENT;
@@ -100,6 +108,10 @@ SIGNAL PC_PLUS_4			: STD_LOGIC_VECTOR(9 DOWNTO 0);
 SIGNAL ADDResult 			: STD_LOGIC_VECTOR( 9 DOWNTO 0 );
 SIGNAL Zero					: STD_LOGIC;
 SIGNAL ALUop 				: STD_LOGIC_VECTOR( 1 DOWNTO 0 );
+SIGNAL Jump					: STD_LOGIC;
+SIGNAL JumpAddr			: STD_LOGIC_VECTOR(9 DOWNTO 0);
+SIGNAL Jump_immed			: STD_LOGIC_VECTOR(25 DOWNTO 0);
+SIGNAL PCToReg				: STD_LOGIC;
 
 --SIGNAL DispTemp : STD_LOGIC_VECTOR(31 DOWNTO 0);
 
@@ -116,7 +128,7 @@ BEGIN
 	PORT MAP(
 		reset				=> reset,
 		clk_48Mhz		=> clock48MHz,
-		HexDspData	=> HexDisplayDT,
+		HexDspData		=> HexDisplayDT,
 		LCD_RS			=> LCD_RS,
 		LCD_E				=> LCD_E,
 		LCD_RW			=> LCD_RW,
@@ -127,10 +139,12 @@ BEGIN
 		rst			=> reset,
 		clk 			=> clock,
 		ADDResult	=> ADDResult,
+		JumpAddr		=> JumpAddr,
 		PCAddr		=> PCAddr,
 		dataInstr	=> DataInstr, 
 		PC_PLUS_4	=> PC_PLUS_4,
 		Branch		=> Branch,
+		Jump			=> Jump,
 		Zero			=> Zero);
 
 	--CTR: Control
@@ -140,9 +154,11 @@ BEGIN
 		ALUop		=> ALUop,
 		RegDst	=> RegDst,
 		MemToReg	=> MemToReg,
+		PCToReg	=> PCToReg,
 		MenWrite => MenWrite,
 		ALUSrc	=> ALUSrc,
 		RegWrite => RegWrite,
+		Jump		=> Jump,
 		Branch	=> Branch);
 
 	--IDEC: Idecode
@@ -156,10 +172,13 @@ BEGIN
 		RegDst 			=> RegDst,
 		Read_data		=> Read_data,
 		Write_data_out => Write_data_out,
-		Sign_extend => SignExtend,
-		clock => clock,
-		MemToReg		=> MemToReg,
-		reset => reset);
+		Jump_immed		=> Jump_immed,
+		Sign_extend		=> SignExtend,
+		PCAddr			=> PCAddr,
+		clock 			=> clock,
+		MemToReg			=> MemToReg,
+		PCToReg			=> PCToReg,
+		reset 			=> reset);
 
 	--EXE: Execute
 	EXE: Execute
@@ -173,6 +192,8 @@ BEGIN
 		ALUSrc		=> ALUSrc,	
 		ALU_Result 	=> ALUResult,
 		ADDResult 	=> ADDResult,
+		Jump_immed	=> Jump_immed,
+		JumpAddr		=> JumpAddr,
 		Zero			=> Zero);
 		
 	--MEM: Memory
