@@ -29,7 +29,7 @@ BEGIN
 	
 	--Gera os sinais para ALU Control
 	ALU_ctl( 0 ) <= ( function_op( 0 ) OR function_op( 3 ) ) AND ALUop(1 ); 
-	ALU_ctl( 1 ) <= ( NOT function_op( 2 ) ) OR (NOT ALUOp( 1 ) ); 
+	ALU_ctl( 1 ) <= ( NOT function_op( 2 ) ) OR (NOT ALUop( 1 ) ); 
 	ALU_ctl( 2 ) <= ( function_op( 1 ) AND ALUop( 1 )) OR ALUop( 0 );
 	
 	--Multiplexador na entrada da ula

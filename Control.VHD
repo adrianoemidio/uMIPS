@@ -39,7 +39,7 @@ BEGIN
 	RegDst	<= R_format;
 	RegWrite <= lw OR R_format OR jal;
 	PCToReg	<= jal;
-	MemToReg <= R_format;
+	MemToReg <= lw;
 	ALUSrc	<= lw OR sw;
 	MenWrite <= sw;
 	Branch	<= beq;

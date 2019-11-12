@@ -44,7 +44,7 @@ COMPONENT Idecode
 				Read_data		: IN 	STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 				Write_data_out	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 				Jump_immed		: OUT STD_LOGIC_VECTOR( 25 DOWNTO 0 );
-				PCAddr			: IN  STD_LOGIC_VECTOR( 7 DOWNTO 0);
+				PC_PLUS_4		: IN	STD_LOGIC_VECTOR(9 DOWNTO 0);
 				Sign_extend 	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 				clock,reset		: IN 	STD_LOGIC );
 
@@ -174,7 +174,7 @@ BEGIN
 		Write_data_out => Write_data_out,
 		Jump_immed		=> Jump_immed,
 		Sign_extend		=> SignExtend,
-		PCAddr			=> PCAddr,
+		PC_PLUS_4		=>	PC_PLUS_4,
 		clock 			=> clock,
 		MemToReg			=> MemToReg,
 		PCToReg			=> PCToReg,

@@ -17,7 +17,7 @@ ENTITY Idecode IS
 				Write_data_out	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
 				Jump_immed		: OUT STD_LOGIC_VECTOR( 25 DOWNTO 0 );
 				Sign_extend 	: OUT STD_LOGIC_VECTOR( 31 DOWNTO 0 );
-				PCAddr			: IN  STD_LOGIC_VECTOR(7 DOWNTO 0);
+				PC_PLUS_4		: IN	STD_LOGIC_VECTOR(9 DOWNTO 0);
 				clock,reset		: IN 	STD_LOGIC );
 END Idecode;
 
@@ -68,7 +68,7 @@ BEGIN
 	write_sel <= ALU_result( 31 DOWNTO 0 ) WHEN ( MemToReg = '0' ) ELSE Read_data;
 	
 	write_data <= write_sel WHEN (PCToReg = '0') ELSE 
-					  X"000000" & (PCAddr + 4); 
+					  X"00000" & "00" & PC_PLUS_4; 
 	
 	-- Estenda o sinal Immediate_value de instrucoes do tipo I de 16-bits to 32-bits
 	-- Faca isto independente do tipo de instrucao, mas use apenas quando
