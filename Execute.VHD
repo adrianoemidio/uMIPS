@@ -24,14 +24,30 @@ ARCHITECTURE behavior OF Execute IS
 	SIGNAL Alu_in2 	: STD_LOGIC_VECTOR(31 DOWNTO 0);
 	SIGNAL ALU_Mux		: STD_LOGIC_VECTOR(31 DOWNTO 0);
 	SIGNAL ALU_ctl		: STD_LOGIC_VECTOR(2 DOWNTO 0);
+	SIGNAL R_type_crt	: STD_LOGIC_VECTOR(2 DOWNTO 0);
 
 BEGIN
 	
 	--Gera os sinais para ALU Control
-	ALU_ctl( 0 ) <= ( function_op( 0 ) OR function_op( 3 ) ) AND ALUop(1 ); 
-	ALU_ctl( 1 ) <= ( NOT function_op( 2 ) ) OR (NOT ALUop( 1 ) ); 
-	ALU_ctl( 2 ) <= ( function_op( 1 ) AND ALUop( 1 )) OR ALUop( 0 );
-	
+					
+	--Multiplexador para selecionar entre as diversas isntrucoes tipo R
+	WITH function_op SELECT 
+			R_type_crt <=	"010" WHEN "100000", -- add
+								"110"	WHEN "100010", -- sub
+								"000" WHEN "100100", -- and
+								"001" WHEN "100101", -- or
+								"111" WHEN "101010", -- slt
+								"100" WHEN "000000", -- sll
+								"101" WHEN "000010", -- srl
+								"010" WHEN "001000", -- jr
+								"011" WHEN OTHERS; -- Operacao invalida
+ 
+
+	--Multiplexador que seleciona entre a instrucao R e as outras instrucoes
+	ALU_ctl <=	"010" 		WHEN ALUop = "00" ELSE -- lw,sw,addi
+					"110" 		WHEN ALUop = "01" ELSE -- beq, bne
+					R_type_crt	WHEN ALUop = "10" OR ALUop = "11"; -- R Type
+ 
 	--Multiplexador na entrada da ula
 	Alu_in2 <= Sign_extend 
 		WHEN ALUSrc = '1'
