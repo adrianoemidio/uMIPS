@@ -9,11 +9,13 @@ ENTITY Ifetch IS
 	PORT( rst,clk	: IN STD_LOGIC;
 		ADDResult	: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
 		JumpAddr		: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		JregAddr		: IN STD_LOGIC_VECTOR(9 DOWNTO 0); --Endereço para pular calculado pelo JR
 		PCAddr		: OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		PC_PLUS_4	: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
 		dataInstr	: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 		Jump			: IN 	STD_LOGIC;
-		Branch, Zero: IN STD_LOGIC);
+		Branch, Zero: IN STD_LOGIC;
+		Jreg			: IN STD_LOGIC); --Indica se é uma instrução JR
 END Ifetch;
 
 ARCHITECTURE behavior OF Ifetch IS
@@ -21,6 +23,7 @@ ARCHITECTURE behavior OF Ifetch IS
 -- Descreva aqui os demais sinais internos
 SIGNAL PC		: STD_LOGIC_VECTOR(9 DOWNTO 0);
 SIGNAL PC_INC	: STD_LOGIC_VECTOR(9 DOWNTO 0);
+SIGNAL PC_INT	: STD_LOGIC_VECTOR(9 DOWNTO 0); --Recebe a saída do MUX entre PC calculado ou endereço do JR
 SIGNAL PC_NEXT : STD_LOGIC_VECTOR(9 DOWNTO 0);
 SIGNAL PC_SEL	: STD_LOGIC_VECTOR(9 DOWNTO 0);
 SIGNAL Mem_addr: STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -49,8 +52,11 @@ BEGIN
 					ADDResult WHEN ((Zero = '1') AND (Branch = '1')) ELSE
 					PC_INC;
 	
-	PC_NEXT <= PC_SEL WHEN Jump = '0' ELSE
+	PC_INT <= PC_SEL WHEN Jump = '0' ELSE
 				  JumpAddr;
+				 
+	PC_NEXT <= PC_INT WHEN Jreg = '0' ELSE --ultimo multiplexador, muda o que vai para PC pro endereço do JR se for intrução JR
+					JRegAddr;
 	
 	-- Descricao do registrador (32 bits)
 	Mem_addr <= PC_NEXT(9 DOWNTO 2);	

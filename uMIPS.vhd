@@ -25,11 +25,13 @@ COMPONENT Ifetch
 	PORT( rst,clk	: IN STD_LOGIC;
 		ADDResult	: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
 		JumpAddr		: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		JregAddr		: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
 		PCAddr		: OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		PC_PLUS_4	: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
 		dataInstr	: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 		Jump			: IN 	STD_LOGIC;
-		Branch, Zero: IN STD_LOGIC);
+		Branch, Zero: IN STD_LOGIC;
+		Jreg			: IN STD_LOGIC); --Indica se é uma instrução JR
 END COMPONENT;
 
 COMPONENT Idecode
@@ -52,6 +54,7 @@ END COMPONENT;
 
 COMPONENT control
    PORT( Opcode 		: IN 		STD_LOGIC_VECTOR( 5 DOWNTO 0 );
+			Rcode			: IN		STD_LOGIC_VECTOR( 5 DOWNTO 0 );
 			ALUop 		: OUT 	STD_LOGIC_VECTOR( 1 DOWNTO 0 );
 			RegDst 		: OUT 	STD_LOGIC;
 			MemToReg		: OUT		STD_LOGIC;
@@ -60,7 +63,8 @@ COMPONENT control
 			ALUSrc		: OUT 	STD_LOGIC;
 			RegWrite 	: OUT 	STD_LOGIC;
 			Jump			: OUT		STD_LOGIC;
-			Branch 		: OUT		STD_LOGIC);
+			Branch 		: OUT		STD_LOGIC;
+			Jreg			: OUT		STD_LOGIC);
 END COMPONENT;
 
 COMPONENT Execute
@@ -75,6 +79,7 @@ COMPONENT Execute
 			ADDResult 		: OUT	STD_LOGIC_VECTOR( 9 DOWNTO 0 );
 			Jump_immed		: IN STD_LOGIC_VECTOR( 25 DOWNTO 0 );
 			JumpAddr			: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
+			JregAddr			: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
 			Zero				: OUT	STD_LOGIC);
 
 END COMPONENT;
@@ -110,6 +115,8 @@ SIGNAL Zero					: STD_LOGIC;
 SIGNAL ALUop 				: STD_LOGIC_VECTOR( 1 DOWNTO 0 );
 SIGNAL Jump					: STD_LOGIC;
 SIGNAL JumpAddr			: STD_LOGIC_VECTOR(9 DOWNTO 0);
+SIGNAL JReg					: STD_LOGIC;
+SIGNAL JRegAddr			: STD_LOGIC_VECTOR(9 DOWNTO 0);
 SIGNAL Jump_immed			: STD_LOGIC_VECTOR(25 DOWNTO 0);
 SIGNAL PCToReg				: STD_LOGIC;
 
@@ -140,17 +147,20 @@ BEGIN
 		clk 			=> clock,
 		ADDResult	=> ADDResult,
 		JumpAddr		=> JumpAddr,
+		JRegAddr		=>	JRegAddr,
 		PCAddr		=> PCAddr,
 		dataInstr	=> DataInstr, 
 		PC_PLUS_4	=> PC_PLUS_4,
 		Branch		=> Branch,
 		Jump			=> Jump,
-		Zero			=> Zero);
+		Zero			=> Zero,
+		JReg			=> JReg);
 
 	--CTR: Control
 	CTR: Control
 	PORT MAP(
 		Opcode	=> DataInstr(31 DOWNTO 26),
+		Rcode		=> DataInstr(5 DOWNTO 0),
 		ALUop		=> ALUop,
 		RegDst	=> RegDst,
 		MemToReg	=> MemToReg,
@@ -159,7 +169,8 @@ BEGIN
 		ALUSrc	=> ALUSrc,
 		RegWrite => RegWrite,
 		Jump		=> Jump,
-		Branch	=> Branch);
+		Branch	=> Branch,
+		JReg		=> JReg);
 
 	--IDEC: Idecode
 	IDEC: Idecode
@@ -194,6 +205,7 @@ BEGIN
 		ADDResult 	=> ADDResult,
 		Jump_immed	=> Jump_immed,
 		JumpAddr		=> JumpAddr,
+		JregAddr		=> JRegAddr,
 		Zero			=> Zero);
 		
 	--MEM: Memory

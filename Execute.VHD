@@ -16,6 +16,7 @@ ENTITY  Execute IS
 			ADDResult 		: OUT	STD_LOGIC_VECTOR( 9 DOWNTO 0 );
 			Jump_immed		: IN STD_LOGIC_VECTOR( 25 DOWNTO 0 );
 			JumpAddr			: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
+			JRegAddr			: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
 			Zero				: OUT	STD_LOGIC);
 END Execute;
 
@@ -64,6 +65,9 @@ BEGIN
 	--Calcula o Jump absoluto
 	JumpAddr <= ( PC_PLUS_4(9 DOWNTO 8) & Jump_immed(5 DOWNTO 0) & "00" );
 	
+	--Calcula o endereço de pulo guardado no registrador
+	JRegAddr <= ("00" & ALU_Mux(9 DOWNTO 2));
+	
 	--Computa o valor do zero
 	Zero <= '1' WHEN ALU_mux = x"00000000" ELSE '0';
 	
@@ -74,9 +78,9 @@ BEGIN
 		WHEN "000" => ALU_mux <= Read_data_1 AND Alu_in2; 
 		-- Operação OU lógico 
 		WHEN "001" => ALU_mux <= Read_data_1 OR Alu_in2;
-		-- Operação de Soma 
+		-- Operação de Soma (também serve para jr, sw e lw)
 		WHEN "010" => ALU_mux <= Read_data_1 + Alu_in2;
-		-- Operação de Subtração 
+		-- Operação de Subtração (também serve para beq e bne)
 		WHEN "110" => ALU_mux <= Read_data_1 - Alu_in2;
 		-- Operação SLT 
 		WHEN "111" => ALU_mux <= Read_data_1 - Alu_in2 ; 
