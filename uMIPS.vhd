@@ -22,16 +22,17 @@ COMPONENT LCD_Display
 END COMPONENT;
 
 COMPONENT Ifetch
-	PORT( rst,clk	: IN STD_LOGIC;
-		ADDResult	: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-		JumpAddr		: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-		JregAddr		: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-		PCAddr		: OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		PC_PLUS_4	: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
-		dataInstr	: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		Jump			: IN 	STD_LOGIC;
-		Branch, Zero: IN STD_LOGIC;
-		Jreg			: IN STD_LOGIC); --Indica se é uma instrução JR
+	PORT( rst,clk		: IN STD_LOGIC;
+		ADDResult		: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		JumpAddr			: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		JregAddr			: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		PCAddr			: OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+		PC_PLUS_4		: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
+		dataInstr		: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		Jump				: IN 	STD_LOGIC;
+		BranchE, Zero	: IN STD_LOGIC;
+		BranchNE			: IN STD_LOGIC;
+		Jreg				: IN STD_LOGIC); 
 END COMPONENT;
 
 COMPONENT Idecode
@@ -63,8 +64,9 @@ COMPONENT control
 			ALUSrc		: OUT 	STD_LOGIC;
 			RegWrite 	: OUT 	STD_LOGIC;
 			Jump			: OUT		STD_LOGIC;
-			Branch 		: OUT		STD_LOGIC;
-			Jreg			: OUT		STD_LOGIC);
+			BranchE 		: OUT		STD_LOGIC;
+			BranchNE		: OUT		STD_LOGIC;
+			JReg			: OUT		STD_LOGIC);
 END COMPONENT;
 
 COMPONENT Execute
@@ -108,7 +110,8 @@ SIGNAL MenWrite			: STD_LOGIC;
 SIGNAL ALUSrc				: STD_LOGIC;
 SIGNAL Read_data			: STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL Write_data_out 	: STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL Branch				: STD_LOGIC;
+SIGNAL BranchE				: STD_LOGIC;
+SIGNAL BranchNE			: STD_LOGIC;
 SIGNAL PC_PLUS_4			: STD_LOGIC_VECTOR(9 DOWNTO 0);
 SIGNAL ADDResult 			: STD_LOGIC_VECTOR( 9 DOWNTO 0 );
 SIGNAL Zero					: STD_LOGIC;
@@ -151,9 +154,10 @@ BEGIN
 		PCAddr		=> PCAddr,
 		dataInstr	=> DataInstr, 
 		PC_PLUS_4	=> PC_PLUS_4,
-		Branch		=> Branch,
 		Jump			=> Jump,
+		BranchE		=> BranchE,
 		Zero			=> Zero,
+		BranchNE		=> BranchNE,
 		JReg			=> JReg);
 
 	--CTR: Control
@@ -169,7 +173,8 @@ BEGIN
 		ALUSrc	=> ALUSrc,
 		RegWrite => RegWrite,
 		Jump		=> Jump,
-		Branch	=> Branch,
+		BranchE	=> BranchE,
+		BranchNE => BranchNE,
 		JReg		=> JReg);
 
 	--IDEC: Idecode

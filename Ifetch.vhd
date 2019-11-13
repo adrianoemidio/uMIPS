@@ -6,16 +6,17 @@ LIBRARY altera_mf;
 USE altera_mf.altera_mf_components.ALL; -- Componente de memoria
 
 ENTITY Ifetch IS
-	PORT( rst,clk	: IN STD_LOGIC;
-		ADDResult	: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-		JumpAddr		: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-		JregAddr		: IN STD_LOGIC_VECTOR(9 DOWNTO 0); --Endereço para pular calculado pelo JR
-		PCAddr		: OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-		PC_PLUS_4	: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
-		dataInstr	: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-		Jump			: IN 	STD_LOGIC;
-		Branch, Zero: IN STD_LOGIC;
-		Jreg			: IN STD_LOGIC); --Indica se é uma instrução JR
+	PORT( rst,clk		: IN STD_LOGIC;
+		ADDResult		: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		JumpAddr			: IN STD_LOGIC_VECTOR(9 DOWNTO 0);
+		JregAddr			: IN STD_LOGIC_VECTOR(9 DOWNTO 0); --Endereço para pular calculado pelo JR
+		PCAddr			: OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+		PC_PLUS_4		: OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
+		dataInstr		: OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+		Jump				: IN 	STD_LOGIC;
+		BranchE, Zero	: IN STD_LOGIC;
+		BranchNE			: IN STD_LOGIC; -- Indica se é bne
+		Jreg				: IN STD_LOGIC); --Indica se é uma instrução JR
 END Ifetch;
 
 ARCHITECTURE behavior OF Ifetch IS
@@ -48,8 +49,8 @@ BEGIN
 	PC_INC <= PC + 4;
 	PC_PLUS_4 <= PC_INC;
 	
-	PC_SEL <= "0000000000" WHEN rst = '1' ELSE 
-					ADDResult WHEN ((Zero = '1') AND (Branch = '1')) ELSE
+	PC_SEL <= "0000000000" 	WHEN rst = '1' ELSE 
+					ADDResult 	WHEN ( ((Zero = '1') AND (BranchE = '1')) OR ((Zero = '0') AND (BranchNE = '1')) ) ELSE
 					PC_INC;
 	
 	PC_INT <= PC_SEL WHEN Jump = '0' ELSE
