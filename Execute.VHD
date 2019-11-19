@@ -34,7 +34,7 @@ BEGIN
 	--Multiplexador para selecionar entre as diversas isntrucoes tipo R
 	WITH function_op SELECT 
 			R_type_crt <=	"010" WHEN "100000", -- add
-								"110"	WHEN "100010", -- sub
+								"110" WHEN "100010", -- sub
 								"000" WHEN "100100", -- and
 								"001" WHEN "100101", -- or
 								"111" WHEN "101010", -- slt
@@ -51,7 +51,7 @@ BEGIN
  
 	--Multiplexador na entrada da ula
 	Alu_in2 <= Sign_extend 
-		WHEN ALUSrc = '1'
+		WHEN ((ALUSrc = '1') OR (ALU_ctl = "100") OR (ALU_ctl = "101"))
 		ELSE Read_data_2;
 		
 	-- Saida da ula para SLT 
@@ -83,7 +83,11 @@ BEGIN
 		-- Operação de Subtração (também serve para beq e bne)
 		WHEN "110" => ALU_mux <= Read_data_1 - Alu_in2;
 		-- Operação SLT 
-		WHEN "111" => ALU_mux <= Read_data_1 - Alu_in2 ; 
+		WHEN "111" => ALU_mux <= Read_data_1 - Alu_in2;
+		-- Operaçao SLL
+		WHEN "100" => ALU_mux <= SHL( Read_data_1, Alu_in2(10 DOWNTO 6) );
+		-- Operaçao SRL
+		WHEN "101" => ALU_mux <= SHR( Read_data_1, Alu_in2(10 DOWNTO 6) );
 		WHEN OTHERS => ALU_mux <= X"00000000" ;
 	
 	END CASE;

@@ -37,7 +37,7 @@ BEGIN
 	lw			<=	'1' WHEN Opcode="100011" ELSE '0';
 	sw			<=	'1' WHEN Opcode="101011" ELSE '0';
 	beq		<= '1' WHEN Opcode="000100" ELSE '0';
-	bne		<= '1' WHEN Opcode="" ELSE '0';
+	bne		<= '1' WHEN Opcode="000101" ELSE '0';
 	jp			<= '1' WHEN Opcode="000010" ELSE '0';
 	jal		<= '1' WHEN Opcode="000011" ELSE '0';
 	
