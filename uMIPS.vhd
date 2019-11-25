@@ -2,13 +2,21 @@ LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 
 ENTITY uMIPS IS
-	PORT(	reset				: IN STD_LOGIC;
-			clock48MHz		: IN STD_LOGIC;
-			LCD_RS, LCD_E	: OUT	STD_LOGIC;
-			LCD_RW, LCD_ON	: OUT STD_LOGIC;
-			DATA				: INOUT	STD_LOGIC_VECTOR(7 DOWNTO 0);
-			clockPB			: IN STD_LOGIC;
-			InstrALU			: IN STD_LOGIC);
+	PORT(	reset					: IN STD_LOGIC;
+			clock48MHz			: IN STD_LOGIC;
+			LCD_RS, LCD_E		: OUT	STD_LOGIC;
+			LCD_RW, LCD_ON		: OUT STD_LOGIC;
+			c_sync				: OUT STD_LOGIC;
+			h_sync, v_sync		: OUT STD_LOGIC;
+			vga_blank			: OUT STD_LOGIC;
+			vga_clock			: OUT STD_LOGIC;
+			m_sel_in				: IN 	STD_LOGIC;
+			red_out 				: OUT STD_LOGIC_VECTOR(9 DOWNTO 0); 
+			green_out			: OUT STD_LOGIC_VECTOR(9 DOWNTO 0); 
+			blue_out			 	: OUT STD_LOGIC_VECTOR(9 DOWNTO 0); 
+			DATA					: INOUT	STD_LOGIC_VECTOR(7 DOWNTO 0);
+			clockPB				: IN STD_LOGIC;
+			InstrALU				: IN STD_LOGIC);
 END uMIPS;
 
 ARCHITECTURE exec OF uMIPS IS
@@ -94,6 +102,34 @@ COMPONENT dmemory
          clock,reset			: IN 	STD_LOGIC );
 END COMPONENT;
 
+
+COMPONENT video  
+PORT( clk_50MHz			: IN STD_LOGIC;
+		c_sync				: OUT STD_LOGIC;
+		red, green, blue 	: OUT STD_LOGIC; 
+		h_sync, v_sync		: OUT STD_LOGIC;
+		v_on_out				: OUT STD_LOGIC;
+		vga_clk				: OUT STD_LOGIC;
+		MenWrite				: IN STD_LOGIC;
+		Zero					: IN STD_LOGIC;
+		Jump					: IN STD_LOGIC;
+		m_sel					: IN STD_LOGIC;
+		ram_addr				: OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+		ram_data				: IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+		PCAddr				: IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+		readData1			: IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+		readData2			: IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+		DataInstr			: IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+		ALU_result			: IN STD_LOGIC_VECTOR(31 DOWNTO 0));
+END COMPONENT;
+
+COMPONENT debounce 
+  PORT(
+    clk     : IN  STD_LOGIC;  --input clock
+    button  : IN  STD_LOGIC;  --input signal to be debounced
+    result  : OUT STD_LOGIC); --debounced signal
+END COMPONENT;
+
 SIGNAL DataInstr 			: STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL DisplayData		: STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL PCAddr				: STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -122,21 +158,56 @@ SIGNAL JReg					: STD_LOGIC;
 SIGNAL JRegAddr			: STD_LOGIC_VECTOR(9 DOWNTO 0);
 SIGNAL Jump_immed			: STD_LOGIC_VECTOR(25 DOWNTO 0);
 SIGNAL PCToReg				: STD_LOGIC;
+SIGNAL clk_d				: STD_LOGIC;
+SIGNAL n_rst				: STD_LOGIC;
+
+SIGNAL red					: STD_LOGIC;
+SIGNAL green				: STD_LOGIC;
+SIGNAL blue					: STD_LOGIC;
+
+SIGNAL ram_addr_sel 		: STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL mem_write_sel		: STD_LOGIC;
+SIGNAL ram_clk_sel      : STD_LOGIC;
+
+SIGNAL ram_addr_vga		: STD_LOGIC_VECTOR(7 DOWNTO 0);
+SIGNAL ram_data_vga		: STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+SIGNAL pc_data_vga		: STD_LOGIC_VECTOR(31 DOWNTO 0);
+
 
 --SIGNAL DispTemp : STD_LOGIC_VECTOR(31 DOWNTO 0);
 
 BEGIN
 	LCD_ON <= '1';
-	clock <= NOT(clockPB);
-	-- Inserir MUX para DisplayData
-						
+	--clock <= (NOT(clk_d)) AND m_sel;
+	clock <= (NOT(clk_d)) AND m_sel_in;
+	
+	n_rst <= NOT(reset);
+	
+	--Multiplexador para selecionar a exibicao dos dados da ram
+	ram_addr_sel	<= ram_addr_vga  		WHEN m_sel_in = '0' ELSE ALUResult(7 DOWNTO 0);
+	mem_write_sel	<=	'0'			  		WHEN m_sel_in = '0' ELSE MenWrite;
+	ram_clk_sel		<= clock48MHz	WHEN m_sel_in = '0' ELSE clock;
+	
 	HexDisplayDT <= "0000" & PCAddr & DisplayData;
 	
 	DisplayData <= DataInstr WHEN InstrALU = '1' ELSE Write_data_out;
+	
+	--PCAddr para a placa de video
+	pc_data_vga <= (X"000000" & PCAddr);
+	
+	
+	--Multiplexador para saida de video
+	green_out	<= "1111111111" WHEN green = '1' ELSE "0000000000";
+	red_out 		<= "0000000000" WHEN red = '1' 	ELSE "0000000000";
+	blue_out		<= "0000000000" WHEN blue = '1' 	ELSE "0000000000";
+	
+	--Sicronismo Separado do canal de cores
+	
 
 	lcd: LCD_Display
 	PORT MAP(
-		reset				=> reset,
+		reset				=> n_rst,
 		clk_48Mhz		=> clock48MHz,
 		HexDspData		=> HexDisplayDT,
 		LCD_RS			=> LCD_RS,
@@ -146,7 +217,7 @@ BEGIN
 	
 	IFT: Ifetch
 	PORT MAP(
-		rst			=> reset,
+		rst			=> n_rst,
 		clk 			=> clock,
 		ADDResult	=> ADDResult,
 		JumpAddr		=> JumpAddr,
@@ -194,7 +265,7 @@ BEGIN
 		clock 			=> clock,
 		MemToReg			=> MemToReg,
 		PCToReg			=> PCToReg,
-		reset 			=> reset);
+		reset 			=> n_rst);
 
 	--EXE: Execute
 	EXE: Execute
@@ -217,12 +288,42 @@ BEGIN
 	MEM : dmemory
 	PORT MAP(
 			read_data	=> Read_data,
-        	address		=> ALUResult(7 DOWNTO 0),
+        	address		=> ram_addr_sel,
         	write_data	=> readData2,
-	   	Memwrite		=> MenWrite,
-         clock			=> clock,
-			reset			=> reset);
+	   	Memwrite		=> mem_write_sel,
+         clock			=> ram_clk_sel,
+			reset			=> n_rst);
 	
+		--Debounce for push botton
+	DEB1: debounce 
+	PORT MAP(
+			clk		=> clock48MHz,
+			button	=> clockPB,
+			result	=> clk_d);
+	
+	
+	--VGA Output
+	VID: video  
+		PORT MAP( clk_50MHz	=> clock48MHz,
+				c_sync		=> c_sync,
+				red			=> red,
+				green			=> green,
+				blue			=> blue, 
+				h_sync		=> h_sync,
+				v_sync		=>	v_sync,
+				v_on_out		=> vga_blank,
+				vga_clk		=> vga_clock,
+				MenWrite		=> MenWrite,
+				Zero			=> Zero,
+				Jump			=> Jump,
+				m_sel			=> m_sel_in,
+				ram_addr		=> (ram_addr_vga),
+				ram_data		=> Read_data,
+				PCAddr		=> pc_data_vga,
+				readData1	=> ReadData1,
+				readData2	=> ReadData2,
+				DataInstr	=> DataInstr,
+				ALU_result	=> AluResult);
 	
 	
 END exec;

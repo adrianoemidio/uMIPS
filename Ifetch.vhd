@@ -27,6 +27,7 @@ SIGNAL PC_INC	: STD_LOGIC_VECTOR(9 DOWNTO 0);
 SIGNAL PC_INT	: STD_LOGIC_VECTOR(9 DOWNTO 0); --Recebe a saída do MUX entre PC calculado ou endereço do JR
 SIGNAL PC_NEXT : STD_LOGIC_VECTOR(9 DOWNTO 0);
 SIGNAL PC_SEL	: STD_LOGIC_VECTOR(9 DOWNTO 0);
+SIGNAL PC_END	: STD_LOGIC_VECTOR(9 DOWNTO 0);
 SIGNAL Mem_addr: STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 BEGIN
@@ -56,9 +57,13 @@ BEGIN
 	PC_INT <= PC_SEL WHEN Jump = '0' ELSE
 				  JumpAddr;
 				 
-	PC_NEXT <= PC_INT WHEN Jreg = '0' ELSE --ultimo multiplexador, muda o que vai para PC pro endereço do JR se for intrução JR
-					JRegAddr;
-	
+	PC_END <= PC_INT WHEN Jreg = '0' ELSE --ultimo multiplexador, muda o que vai para PC pro endereço do JR se for intrução JR
+					JregAddr;
+
+	--Multiplexador para reiniar o pc next no caso de reset
+	PC_NEXT <= ("00" & x"00") WHEN rst = '1' ELSE
+					PC_END;
+					
 	-- Descricao do registrador (32 bits)
 	Mem_addr <= PC_NEXT(9 DOWNTO 2);	
 	
@@ -67,7 +72,7 @@ BEGIN
 	PROCESS(clk,rst)
 	BEGIN
 		IF(rst = '1') THEN
-			PC <= "00" & x"00";
+			PC			<= "00" & x"00";
 		ELSIF(clk'event AND clk = '1') THEN		
 			PC <= PC_NEXT;
 		END IF;

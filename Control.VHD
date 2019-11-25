@@ -26,6 +26,7 @@ ARCHITECTURE behavior OF control IS
 	SIGNAL	jp			: STD_LOGIC;
 	SIGNAL	jal		: STD_LOGIC;
 	SIGNAL	jr			: STD_LOGIC;
+	SIGNAL	addi		: STD_LOGIC;
 	 
 BEGIN           
 	
@@ -40,14 +41,15 @@ BEGIN
 	bne		<= '1' WHEN Opcode="000101" ELSE '0';
 	jp			<= '1' WHEN Opcode="000010" ELSE '0';
 	jal		<= '1' WHEN Opcode="000011" ELSE '0';
+	addi		<= '1' WHEN Opcode="001000" ELSE '0';
 	
 	jr			<= '1' WHEN Rcode="001000" ELSE '0'; --sinal que indica quando é uma instrucao JR pelos últimos 6 bits
 	
 	RegDst	<= R_format;
-	RegWrite <= lw OR R_format OR jal;
+	RegWrite <= lw OR R_format OR jal OR addi;
 	PCToReg	<= jal;
 	MemToReg <= lw;
-	ALUSrc	<= lw OR sw;
+	ALUSrc	<= lw OR sw OR addi;
 	MenWrite <= sw;
 	BranchE	<= beq;
 	BranchNE <= bne;

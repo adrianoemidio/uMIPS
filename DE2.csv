@@ -1,0 +1,73 @@
+# Copyright (C) 1991-2013 Altera Corporation
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and its AMPP partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, Altera MegaCore Function License 
+# Agreement, or other applicable license agreement, including, 
+# without limitation, that your use is for the sole purpose of 
+# programming logic devices manufactured by Altera and sold by 
+# Altera or its authorized distributors.  Please refer to the 
+# applicable agreement for further details.
+
+# Quartus II 64-Bit Version 13.0.1 Build 232 06/12/2013 Service Pack 1 SJ Web Edition
+# File: /home/adriano/Documentos/UFSCar/Lab_arch/uMIPS_Entrega1/DE2.csv
+# Generated on: Sun Nov 24 22:28:24 2019
+
+# Note: The column header names should not be changed if you wish to import this .csv file into the Quartus II software.
+
+To,Direction,Location,I/O Bank,VREF Group,Fitter Location,I/O Standard,Reserved,Current Strength,Differential Pair
+blue_out[9],Output,PIN_B12,3,B3_N0,PIN_B12,,,,
+blue_out[8],Output,PIN_C12,3,B3_N0,PIN_C12,,,,
+blue_out[7],Output,PIN_B11,3,B3_N0,PIN_B11,,,,
+blue_out[6],Output,PIN_C11,3,B3_N0,PIN_C11,,,,
+blue_out[5],Output,PIN_J11,3,B3_N0,PIN_J11,,,,
+blue_out[4],Output,PIN_J10,3,B3_N0,PIN_J10,,,,
+blue_out[3],Output,PIN_G12,3,B3_N0,PIN_G12,,,,
+blue_out[2],Output,PIN_F12,3,B3_N0,PIN_F12,,,,
+blue_out[1],Output,PIN_J14,3,B3_N0,PIN_J14,,,,
+blue_out[0],Output,PIN_J13,3,B3_N0,PIN_J13,,,,
+c_sync,Output,PIN_B7,3,B3_N1,PIN_B7,,,,
+clock48MHz,Input,PIN_N2,2,B2_N1,PIN_N2,,,,
+clockPB,Input,PIN_N23,5,B5_N1,PIN_N23,,,,
+DATA[7],Bidir,PIN_H3,2,B2_N1,PIN_H3,,,,
+DATA[6],Bidir,PIN_H4,2,B2_N1,PIN_H4,,,,
+DATA[5],Bidir,PIN_J3,2,B2_N1,PIN_J3,,,,
+DATA[4],Bidir,PIN_J4,2,B2_N1,PIN_J4,,,,
+DATA[3],Bidir,PIN_H2,2,B2_N1,PIN_H2,,,,
+DATA[2],Bidir,PIN_H1,2,B2_N1,PIN_H1,,,,
+DATA[1],Bidir,PIN_J2,2,B2_N1,PIN_J2,,,,
+DATA[0],Bidir,PIN_J1,2,B2_N1,PIN_J1,,,,
+green_out[9],Output,PIN_D12,3,B3_N0,PIN_D12,,,,
+green_out[8],Output,PIN_E12,3,B3_N0,PIN_E12,,,,
+green_out[7],Output,PIN_D11,3,B3_N0,PIN_D11,,,,
+green_out[6],Output,PIN_G11,3,B3_N0,PIN_G11,,,,
+green_out[5],Output,PIN_A10,3,B3_N0,PIN_A10,,,,
+green_out[4],Output,PIN_B10,3,B3_N0,PIN_B10,,,,
+green_out[3],Output,PIN_D10,3,B3_N0,PIN_D10,,,,
+green_out[2],Output,PIN_C10,3,B3_N0,PIN_C10,,,,
+green_out[1],Output,PIN_A9,3,B3_N0,PIN_A9,,,,
+green_out[0],Output,PIN_B9,3,B3_N0,PIN_B9,,,,
+h_sync,Output,PIN_A7,3,B3_N1,PIN_A7,,,,
+InstrALU,Input,PIN_N26,5,B5_N1,PIN_N26,,,,
+LCD_E,Output,PIN_K3,2,B2_N1,PIN_K3,,,,
+LCD_ON,Output,PIN_L4,2,B2_N1,PIN_L4,,,,
+LCD_RS,Output,PIN_K1,2,B2_N1,PIN_K1,,,,
+LCD_RW,Output,PIN_K4,2,B2_N1,PIN_K4,,,,
+m_sel_in,Input,PIN_P25,6,B6_N0,PIN_P25,,,,
+red_out[9],Output,PIN_E10,3,B3_N0,PIN_E10,,,,
+red_out[8],Output,PIN_F11,3,B3_N0,PIN_F11,,,,
+red_out[7],Output,PIN_H12,3,B3_N0,PIN_H12,,,,
+red_out[6],Output,PIN_H11,3,B3_N0,PIN_H11,,,,
+red_out[5],Output,PIN_A8,3,B3_N0,PIN_A8,,,,
+red_out[4],Output,PIN_C9,3,B3_N1,PIN_C9,,,,
+red_out[3],Output,PIN_D9,3,B3_N1,PIN_D9,,,,
+red_out[2],Output,PIN_G10,3,B3_N1,PIN_G10,,,,
+red_out[1],Output,PIN_F10,3,B3_N1,PIN_F10,,,,
+red_out[0],Output,PIN_C8,3,B3_N1,PIN_C8,,,,
+reset,Input,PIN_N25,5,B5_N1,PIN_N25,,,,
+v_sync,Output,PIN_D8,3,B3_N1,PIN_D8,,,,
+vga_blank,Output,PIN_D6,3,B3_N1,PIN_D6,,,,
+vga_clock,Output,PIN_B8,3,B3_N0,PIN_B8,,,,

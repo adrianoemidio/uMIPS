@@ -66,12 +66,13 @@ BEGIN
 	JumpAddr <= ( PC_PLUS_4(9 DOWNTO 8) & Jump_immed(5 DOWNTO 0) & "00" );
 	
 	--Calcula o endereço de pulo guardado no registrador
-	JRegAddr <= ("00" & ALU_Mux(9 DOWNTO 2));
+	--JRegAddr <= ("00" & ALU_Mux(9 DOWNTO 2));
+	JRegAddr <= ALU_Mux(9 DOWNTO 0);
 	
 	--Computa o valor do zero
 	Zero <= '1' WHEN ALU_mux = x"00000000" ELSE '0';
 	
-PROCESS(ALU_ctl,Read_data_1,Alu_in2)
+PROCESS(ALU_ctl,Read_data_1,Alu_in2,Read_data_2)
 BEGIN
 	CASE ALU_ctl IS
 		-- Operação E lógico 
@@ -85,9 +86,9 @@ BEGIN
 		-- Operação SLT 
 		WHEN "111" => ALU_mux <= Read_data_1 - Alu_in2;
 		-- Operaçao SLL
-		WHEN "100" => ALU_mux <= SHL( Read_data_1, Alu_in2(10 DOWNTO 6) );
+		WHEN "100" => ALU_mux <= STD_LOGIC_VECTOR(SHL(UNSIGNED(Read_data_2),UNSIGNED(Alu_in2(10 DOWNTO 6))));
 		-- Operaçao SRL
-		WHEN "101" => ALU_mux <= SHR( Read_data_1, Alu_in2(10 DOWNTO 6) );
+		WHEN "101" => ALU_mux <= STD_LOGIC_VECTOR(SHR(UNSIGNED(Read_data_2),UNSIGNED(Alu_in2(10 DOWNTO 6))));
 		WHEN OTHERS => ALU_mux <= X"00000000" ;
 	
 	END CASE;

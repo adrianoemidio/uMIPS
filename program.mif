@@ -12,7 +12,7 @@
 -- Altera or its authorized distributors.  Please refer to the 
 -- applicable agreement for further details.
 
--- Quartus II generated Memory Initialization File (.mif)
+---- Teste geral mips ---------
 
 WIDTH=32;
 DEPTH=256;
@@ -21,14 +21,153 @@ ADDRESS_RADIX=HEX;
 DATA_RADIX=HEX;
 
 CONTENT BEGIN
-	[000..001]  :   8C080000;
-	002  :   8C090001;
-	003  :   01095022;
-	004  :   08000008;
-	[005..007]  :   00000000;
-	008  :   8C040000;
-	009  :   0C000020;
-	[00A..01F]  :   00000000;
-	020  :   0C000001;
-	[021..0FF]  :   00000000;
+
+	----Instruçoes load e store ----
+
+	000 :  8C080000; -- Carrega o dado do end. 0x00 no reg. $t0 ($t0 = 0x55555555)
+	001 :  8C090001; -- Carrega o dado do end. 0x01 no reg. $t1 ($t1 = 0xAAAAAAAA)
+	002 :  8C0A0002; -- Carrega o dado do end. 0x02 no reg. $t2 ($t2 = 0xFFFFFFF4)
+	003 :  8C0B0003; -- Carrega o dado do end. 0x03 no reg. $t3 ($t3 = 0x00000005)
+	004 :  8C0C0004; -- Carrega o dado do end. 0x04 no reg. $t4 ($t4 = 0xFFFFFFFF)
+	005 :  8C0D0005; -- Carrega o dado do end. 0x05 no reg. $t5 ($t5 = 0xFFFFFFFB)
+	006 :  8C0E0006; -- Carrega o dado do end. 0x06 no reg. $t6 ($t6 = 0xF0F0F0F0)
+	007 :  AC08000F; -- Salva o dado do reg. $t0 no end. 0x0F
+
+	----Instrução Addi (Soma de imediato)----
+
+	--Soma dois Nos positivos
+	008 :  21640004; -- addi $a0, $t3, 4 -- $a0 = $t3 + 4 ($a0 = 0x09)
+
+	--Soma No positvo com negativo
+	009 :  2164fffe; -- addi $a0, $t3, -2 -- $t3 = $t3 + (-2) ($a0 = 0x03)
+
+	--Soma dois Nos negativos
+	00A :  2144fff6; -- addi $a0, $t2, -10 -- $t3 = $t2 + (-A) ($a0 = 0xFFFFFFEA)
+
+	----Instruções ADD (soma) e SUB (subtração)---
+
+	--Soma dois Nos positivos
+	00B :  010b2020; -- add $a0, $t0, $t3 -- $a0 = $t0 + $t3 ($a0 = 0x5555555A)
+
+	--Soma No positvo com negativo	
+	00C :  01092020; -- add $a0, $t0, $t1 -- $a0 = $t0 + $t1 ($a0 = 0xFFFFFFFF)
+	
+	--Soma dois Nos negativos
+	00D :  012A2020; -- add $a0, $t1, $t2 --$a0 = $t2 + $t1 ($a0 = 0xAAAAAA9E)
+	
+	--Subtrai dois Nos positivos
+	00E :  010B2022; -- sub $a0, $t0, $t3 -- $t4 = $t0 - $t3 ($a0 = 0x55555550)
+	
+	--Subtrai No positvo com negativo
+	00F :  016a2022; -- sub $a0, $t3, $t2 -- $a0 = $t3 - $t2 ($a0 = 0x11)
+	
+	--Subtrai dois Nos negativos
+	010 :  012a2022; -- sub $a0, $t1, $t2 -- $a0 = $t1 - $t2 ($a0 = 0xAAAAAB6)
+
+
+	----Instruções AND (e) e OR (OU)----
+
+	--Realiza a op. 'e' com registrador com bits em '0'
+	011 :  01202024; -- and $a0, $t1,$zero -- $a0 = 0x00000000
+
+	--Realiza a op. 'e' com registrador com bits em '1'
+	012 :  012c2024; -- and $a0, $t1,$t4 -- $a0 = 0xAAAAAAAA
+
+	--Realiza a op. 'e' entre dois valores distintos
+	013 :  012e2024; -- and $a0, $t1,$t6 -- $a0 = 0xA0A0A0A0
+
+	--Realiza a op. 'ou' com registrador com bits em '0'
+	014 :  01202025; -- or $a0, $t1,$zero -- $a0 = 0xAAAAAAA
+
+	--Realiza a op. 'ou' com registrador com bits em '1'
+	015 :  012C2025; -- or $a0, $t1,$t4 -- $a0 = 0xFFFFFFFF
+
+	--Realiza a op. 'ou' entre dois valores distintos
+	016 :  012E2025; -- or $a0, $t1,$t6 -- $a0 = 0xFAFAFAFA
+	
+	----Instruções SLL e SRL----
+
+	--Desloca para direita
+	017 :  000e2180; -- sll $a0, $t6, 6 -- $a0 = 0x3C3C3C00
+
+	--Desloca para esquerda
+	018 :  000e2142; -- srl $a0, $t6, 5 -- $a0 = 0x07878787
+
+	----Instrução slt (Set Less than)----
+
+	--Dois Nos positivos, o primeiro maior que o segundo
+	019 :  010b202a; -- slt $a0, $t0, $t3 --($a0 = 0)
+
+	--Dois Nos positivos, o primeiro menor que o segundo
+	01A :  0168202a; -- slt $a0, $t3, $t0 --($a0 = 1)
+
+	--Dois Nos Negativos, o primeiro menor que o segundo
+	01B :  012a202a; -- slt $a0, $t1, $t2 --($a0 = 1)
+
+	--Dois Nos Negativos, o primeiro maior que o segundo
+	01C :  0149202a; -- slt $a0, $t2, $t1 --($a0 = 0)
+	
+	--Um No Positivo e um Negativo, o primeiro maior que o segundo
+	01D :  010A202A; -- slt $a0, $t0, $t2 --($a0 = 0)
+
+	--Um No Positivo e um Negativo, o primeiro menor que o segundo
+	01E :  0148202A; -- slt $a0, $t1, $t0 --($a0 = 1)	
+	
+	--Dois Nos iguais
+	01F :  0129202a; -- slt $a0, $t1, $t1 --($a0 = 0)
+	
+	----Instrução beq (Branch equal)----
+
+	--Dois Nos Positivos diferentes
+	020 :  110B000E; -- beq $t0, $t3, 0x0E --(Não desvia)
+
+	--Dois Nos Positivos iguais
+	021 :  116B000E; -- beq $t3, $t3, 0x0E --(desvia)
+
+	--Dois Nos Negativos diferentes
+	022 :  112A000E; -- beq $t1, $t2, 0x0E --(--Não desvia)
+
+	--Dois Nos Negativos iguais
+	023 :  114A000D; -- beq $t2, $t2, 0x0D --(desvia)
+
+	--Nos com sinais diferentes
+	024 :  110A000D; -- beq $t0, $t2, 0x0D --(Não desvia)
+
+	----Instrução bne (Branch not equal)----
+
+	--Dois Nos Positivos iguais
+	025 :  156B000B; -- bne $t3, $t3, 0x0B --(Não desvia)
+
+	--Dois Nos Positivos diferentes
+	026 :  150B000B; -- bne $t0, $t3, 0x0B --(desvia)
+
+	--Dois Nos Negativos iguais
+	027 :  154A000A; -- bne $t2, $t2, 0x0A --(Não desvia)
+
+	--Dois Nos Negativos diferentes
+	028 :  152A000A; -- bne $t1, $t2, 0x0A --(desvia)
+
+	--Nos com sinais diferentes
+	029 :  150A000A; -- bne $t0, $t2, 0x0A --(desvia)
+
+	----Instruções jal e jr (jump and link e jump register)----
+
+	02A :  0C000035; -- jal 0x35
+	
+	----Instrução j (jump)----
+
+	02B :  0C000037; -- j 0x37
+
+	[02C..02F]  :   00000000;
+	
+
+	030 :  08000022; -- Return To struction 0x22
+	031 :  08000024; -- Return To struction 0x24
+	032 :  08000027; -- Return To struction 0x27
+	033 :  08000029; -- Return To struction 0x29
+	034 :  0800002A; -- Return To struction 0x2A
+	035 :  AC1F0019; -- Guarda $ra no enderço 32
+	036 :  03e00008; -- jr $ra	
+	037 :  0800002B; -- j 0x2B
+	[038..0FF]  :   00000000;
 END;
